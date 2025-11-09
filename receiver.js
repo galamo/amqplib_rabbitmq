@@ -11,21 +11,28 @@ amqp.connect("amqp://localhost", function (error0, connection) {
       throw error1;
     }
 
-    const queue = "email_message";
+    const queue = "email_notifications_lost_messages";
 
     channel.assertQueue(queue, {
       durable: false,
+      autoDelete: true,
     });
 
     console.log("[=====] Consumer is waiting for new message [=====]");
+    channel.prefetch(20);
 
     channel.consume(
       queue,
-      function (msg) {
+      async function (msg) {
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        // for(let i = 0; i < 99999999; i++){
+        //   console.log("calculating... " + i)
+        // }
         console.log(`[Consumer][received] => ${msg.content.toString()}`);
+        channel.ack(msg)
       },
       {
-        noAck: true,
+        noAck: false, 
       }
     );
   });

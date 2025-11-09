@@ -11,16 +11,18 @@ amqp.connect("amqp://localhost", function (error0, connection) {
             throw error1;
         }
 
-        const queue = "email_message";
+        const queue = "email_notifications_lost_messages";
 
         channel.assertQueue(queue, {
             durable: false,
+            autoDelete: true,
         });
+
         setInterval(() => {
             const msg = getMessage();
             channel.sendToQueue(queue, Buffer.from(JSON.stringify(msg)));
             console.log(`[Producer][Sent] => ${msg.messageId} send to queue: ${queue}`);
-        }, 300);
+        }, 500);
     });
 });
 let inc = 0;
